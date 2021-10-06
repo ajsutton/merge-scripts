@@ -40,3 +40,32 @@ then
     echo "Teku executable: $TEKU"
 fi
 
+if [ "${NEED_LIGHTHOUSE:-false}" == "true" ]
+then
+    if  ! command -v lighthouse &> /dev/null
+    then
+        echo "#### Building Lighthouse"
+        pushd "${BASEDIR}"
+        git clone -b merge-f2f https://github.com/sigp/lighthouse.git
+        cd lighthouse
+        make
+        popd
+    fi
+    export LIGHTHOUSE=$(which lighthouse)
+    echo "Lighthouse executable: $LIGHTHOUSE"
+fi
+
+if [ "${NEED_GETH:-false}" == "true" ]
+then
+    export GETH="${GETH:-$BASEDIR/go-ethereum/build/bin/geth}"
+    if [ ! -f "$GETH" ]
+    then
+        echo "#### Building Geth"
+        pushd "${BASEDIR}"
+        git clone -b merge-interop-spec https://github.com/MariusVanDerWijden/go-ethereum.git
+        cd go-ethereum
+        make geth
+        popd
+    fi
+    echo "Geth executable: $GETH"
+fi
