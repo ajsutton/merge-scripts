@@ -12,25 +12,31 @@ export TEKU="${TEKU:-$BASEDIR/teku/build/install/teku/bin/teku}"
 export SCRATCH="${BASEDIR}/tmp"
 mkdir -p "${SCRATCH}"
 
-if [ ! -f "$BESU" ]
-then
-    echo "##### Building Besu"
-    pushd "${BASEDIR}"
-    git clone -b merge https://github.com/hyperledger/besu
-    cd besu
-    ./gradlew --parallel installDist
-    popd
+if [ "${NEED_BESU:-false}" == "true" ]
+then 
+    if [ ! -f "$BESU" ]
+    then
+        echo "##### Building Besu"
+        pushd "${BASEDIR}"
+        git clone -b merge https://github.com/hyperledger/besu
+        cd besu
+        ./gradlew --parallel installDist
+        popd
+    fi
+    echo "Besu executable: $BESU"
 fi
 
-if [ ! -f "$TEKU" ]
+if [ "${NEED_TEKU:-false}" == "true" ]
 then
-    echo "#### Building Teku"
-    pushd "${BASEDIR}"
-    git clone -b merge-interop --recursive https://github.com/ConsenSys/teku
-    cd teku
-    ./gradlew --parallel installDist
-    popd
+    if [ ! -f "$TEKU" ]
+    then
+        echo "#### Building Teku"
+        pushd "${BASEDIR}"
+        git clone -b merge-interop --recursive https://github.com/ConsenSys/teku
+        cd teku
+        ./gradlew --parallel installDist
+        popd
+    fi
+    echo "Teku executable: $TEKU"
 fi
 
-echo "Besu executable: $BESU"
-echo "Teku executable: $TEKU"

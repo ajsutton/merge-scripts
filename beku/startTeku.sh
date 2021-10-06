@@ -3,6 +3,7 @@ set -euo pipefail
 
 SCRIPTDIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 
+NEED_TEKU="true"
 cd "${SCRIPTDIR}"
 source ../prep.sh
 
