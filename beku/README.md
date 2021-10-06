@@ -2,7 +2,7 @@
 
 ## Initial Setup
 
-Download and compile besuy and teku by running the `./prep.sh` script. This only needs to be done once.  Afterwards you can update to more recent versions by running `git pull && ./gradlew installDist` in either the `besu` or `teku` directory.
+The first time either start script is run, it will download and compile besu and teku. If you already have these elsewhere you can set either the `BESU` or `TEKU` env var to the actual executable to use for one or both of them (e.g. `BESU=<besu-source-dir>/build/install/besu/bin/besu`).
 
 ## Start Besu
 
