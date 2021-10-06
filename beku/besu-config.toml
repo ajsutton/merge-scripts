@@ -1,0 +1,12 @@
+Xmerge-support=true
+genesis-file="execution-genesis.json"
+data-path="/tmp/besu"
+network-id=7882
+rpc-http-enabled=true
+rpc-http-api=["ADMIN","ETH","NET","DEBUG","TXPOOL","EXECUTION"]
+host-allowlist=["*"]
+rpc-http-cors-origins=["*"]
+rpc-http-port=8545
+p2p-port=30308
+p2p-enabled=false
+node-private-key-file="besu.key"
