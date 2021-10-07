@@ -69,3 +69,14 @@ then
     fi
     echo "Geth executable: $GETH"
 fi
+
+if [ "${NEED_VALTOOLS:-false}" == "true" ]
+then
+    if ! command -v eth2-val-tools &> /dev/null
+    then
+        echo "#### Compiling eth2-val-tools"
+        GO111MODULE=on go install github.com/protolambda/eth2-val-tools@latest
+    fi
+    export VALTOOLS=$(which eth2-val-tools)
+    echo "eth2-val-tools executable: $VALTOOLS"
+fi

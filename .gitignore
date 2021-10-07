@@ -1,5 +1,6 @@
-besu
-teku
-lighthouse
-go-ethereum
-tmp
+/.idea
+/besu
+/teku
+/lighthouse
+/go-ethereum
+/tmp

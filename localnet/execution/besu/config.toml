@@ -1,0 +1,10 @@
+Xmerge-support=true
+genesis-file="execution/genesis.json"
+network-id=2337002
+rpc-http-enabled=true
+rpc-http-api=["ADMIN","ETH","NET","DEBUG","TXPOOL","EXECUTION"]
+host-allowlist=["*"]
+rpc-http-cors-origins=["*"]
+p2p-enabled=true
+sync-mode="full"
+logging="info"
