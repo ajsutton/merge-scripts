@@ -23,7 +23,7 @@ EXECUTION_BOOTNODE="enode://3a514176466fa815ed481ffad09110a2d344f6c9b78c1d14afc3
 
 echo "Generating consensus genesis state..."
 eth2-testnet-genesis phase0 \
-  --config consensus/config.yaml \
+  --config consensus/phase0.yaml \
   --eth1-block 0x6342bde06c37c72e50401c7c6ca3a898c129da44cb647c1de60584c3b3414faa \
   --timestamp $(date +%s) \
   --mnemonics consensus/mnemonics.yaml \
@@ -68,11 +68,13 @@ tmux split-window -h -t merge-localnet \
     --validator-keys "consensus/validator-keys/batch2/teku-keys:consensus/validator-keys/batch2/teku-secrets" \
     --validators-keystore-locking-enabled=false \
     --network=consensus/config.yaml \
-    --Xnetwork-merge-total-terminal-difficulty=250 \
+    --initial-state "${GENESIS_STATE}" \
+    --Xnetwork-merge-total-terminal-difficulty=300 \
     --p2p-private-key-file=consensus/teku/teku.key \
     --p2p-advertised-ip=127.0.0.1 \
+    --p2p-port 9000 \
+    --Xlog-include-p2p-warnings-enabled \
     --rest-api-enabled \
-    --initial-state "${GENESIS_STATE}" \
     --data-path "${SCRATCH}/localnet/data/teku1"
 
 
@@ -94,6 +96,7 @@ tmux split-window -v -t %0 \
 # Use besu instead:
 #sh -c "$BESU --config-file execution/besu/config.toml --data-path \"${SCRATCH}/localnet/data/besu2\"  --p2p-port 30309 --rpc-http-port=8546 --bootnodes \"${EXECUTION_BOOTNODE}\" | tee \"${SCRATCH}/localnet/data/besu2/besu.log\""
 
+sleep 5
 tmux split-window -v -t %1 \
   $TEKU \
     --eth1-endpoints http://127.0.0.1:8546 \
@@ -102,13 +105,15 @@ tmux split-window -v -t %1 \
     --validator-keys "consensus/validator-keys/batch4/teku-keys:consensus/validator-keys/batch4/teku-secrets" \
     --validators-keystore-locking-enabled=false \
     --network=consensus/config.yaml \
-    --Xnetwork-merge-total-terminal-difficulty=250 \
+    --initial-state "${GENESIS_STATE}" \
+    --Xnetwork-merge-total-terminal-difficulty=300 \
     --p2p-advertised-ip=127.0.0.1 \
     --p2p-port 9001 \
+    --Xlog-include-p2p-warnings-enabled \
     --p2p-discovery-bootnodes "${CONSENSUS_BOOTNODE}" \
+    --p2p-static-peers "/ip4/127.0.0.1/tcp/9000/p2p/16Uiu2HAmFojnD68tVG9yKjHApYTvyjtnQ2nMbxJpoDNiMPGVdyGP" \
     --rest-api-enabled \
     --rest-api-port 5052 \
-    --initial-state "${GENESIS_STATE}" \
     --data-path "${SCRATCH}/localnet/data/teku2"
 
 tmux attach-session -t merge-localnet

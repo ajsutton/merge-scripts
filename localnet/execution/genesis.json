@@ -19,7 +19,7 @@
       "blockPeriodSeconds": 5,
       "epoch": 30000
     },
-    "terminalTotalDifficulty":250
+    "terminalTotalDifficulty":300
   },
   "nonce": "0x42",
   "timestamp": "0x0",
