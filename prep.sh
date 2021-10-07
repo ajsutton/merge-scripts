@@ -80,3 +80,18 @@ then
     export VALTOOLS=$(which eth2-val-tools)
     echo "eth2-val-tools executable: $VALTOOLS"
 fi
+
+if [ "${NEED_NIMBUS:-false}" == "true" ]
+then
+  export NIMBUS_BN="${NIMBUS_BN:-$BASEDIR/nimbus-eth2/build/nimbus_beacon_node}"
+  export NIMBUS_VC="${NIMBUS_VC:-$BASEDIR/nimbus-eth2/build/nimbus_validator_client}"
+  if [ ! -f "${NIMBUS_BN}" ]
+  then
+    echo "#### Building Nimbus"
+    pushd "${BASEDIR}"
+    git clone -b amphora-merge-interop https://github.com/status-im/nimbus-eth2.git
+    cd nimbus-eth2
+    make NIMFLAGS="-d:const_preset=mainnet" nimbus_beacon_node nimbus_validator_client
+    popd
+  fi
+fi

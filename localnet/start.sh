@@ -6,6 +6,7 @@ NEED_BESU="true"
 NEED_TEKU="true"
 NEED_GETH="true"
 NEED_LIGHTHOUSE="true"
+#NEED_NIMBUS="true"
 NEED_VALTOOLS="true"
 
 cd "${SCRIPTDIR}"
@@ -19,6 +20,7 @@ mkdir -p "${SCRATCH}/localnet/data/besu2"
 
 GENESIS_STATE="${SCRATCH}/localnet/genesis.ssz"
 TERMINAL_TOTAL_DIFFICULTY=300
+export JAVA_OPTS="-Xmx512m"
 
 CONSENSUS_BOOTNODE="enr:-KG4QNndG4nlf0_K6G2NOQ_ifmraOlseY7ZbsDQ0NWk2pmxjE-bi6SQT4UGXIbRXLq3vbvxWuNkxxEgml6h18nCKyvoDhGV0aDKQNJ7Z9jEAAAEBAAAAAAAAAIJpZIJ2NIJpcIR_AAABiXNlY3AyNTZrMaEDLtDQNOGsr_iYx-sZkTPsZha9b9PaHe5pHub_YcbGuZyDdGNwgiMog3VkcIIjKA"
 EXECUTION_BOOTNODE="enode://3a514176466fa815ed481ffad09110a2d344f6c9b78c1d14afc351c3a51be33d8072e77939dc03ba44790779b7a1025baf3003f6732430e20cd9b76d953391b3@127.0.0.1:30308"
@@ -26,7 +28,7 @@ EXECUTION_BOOTNODE="enode://3a514176466fa815ed481ffad09110a2d344f6c9b78c1d14afc3
 echo "Generating consensus genesis state..."
 eth2-testnet-genesis phase0 \
   --config consensus/phase0.yaml \
-  --eth1-block 0x6342bde06c37c72e50401c7c6ca3a898c129da44cb647c1de60584c3b3414faa \
+  --eth1-block 0xd20a4f7d29f3a524f893485aab52fad41ebcfc7d2095fc704d677417b9169919 \
   --timestamp $(date +%s) \
   --mnemonics consensus/mnemonics.yaml \
   --state-output "${GENESIS_STATE}" \
@@ -102,6 +104,7 @@ tmux split-window -v -t %0 \
     --syncmode full \
     --networkid 2337002 \
     console
+
 # Use besu instead:
 #sh -c "$BESU --config-file execution/besu/config.toml --data-path \"${SCRATCH}/localnet/data/besu2\"  --p2p-port 30309 --rpc-http-port=8546 --bootnodes \"${EXECUTION_BOOTNODE}\" | tee \"${SCRATCH}/localnet/data/besu2/besu.log\""
 
@@ -110,7 +113,6 @@ tmux split-window -v -t %1 \
     --eth1-endpoints http://127.0.0.1:8546 \
     --ee-fee-recipient-address=0xfe3b557e8fb62b89f4916b721be55ceb828dbd73 \
     --validator-keys "consensus/validator-keys/batch3/teku-keys:consensus/validator-keys/batch3/teku-secrets" \
-    --validator-keys "consensus/validator-keys/batch4/teku-keys:consensus/validator-keys/batch4/teku-secrets" \
     --validators-keystore-locking-enabled=false \
     --network=consensus/config.yaml \
     --initial-state "${GENESIS_STATE}" \
@@ -155,8 +157,46 @@ tmux split-window -v -t %3 \
     --http-allow-sync-stalled \
     --merge \
     --execution-endpoints http://127.0.0.1:8547 \
-    --terminal-total-difficulty-override ${TERMINAL_TOTAL_DIFFICULTY}
+    --terminal-total-difficulty-override 12C
+# Lighthouse Validator
+mkdir -p "${SCRATCH}/localnet/data/lighthouse1-vc"
+cp -rf consensus/validator-keys/batch4/keys "${SCRATCH}/localnet/data/lighthouse1-vc/"
+cp -rf consensus/validator-keys/batch4/secrets "${SCRATCH}/localnet/data/lighthouse1-vc/"
+tmux split-window -v -t %5 \
+  $LIGHTHOUSE \
+    --spec mainnet \
+    --testnet-dir "${BEACONSPEC_DIR}" \
+    vc \
+    --beacon-nodes http://127.0.0.1:5053 \
+    --init-slashing-protection \
+    --validators-dir "${SCRATCH}/localnet/data/lighthouse1-vc/keys" \
+    --secrets-dir "${SCRATCH}/localnet/data/lighthouse1-vc/secrets"
 
-
+# Nimbus currently finds peers but isn't importing any blocks and I'm not sure why.
+#echo "### Node 4 - Geth + Nimbus"
+#
+#$GETH --datadir "${SCRATCH}/localnet/data/geth4" init execution/genesis.json
+#tmux split-window -v -t %2 \
+#  $GETH \
+#    --catalyst \
+#    --ws \
+#    --http.api "engine,eth" \
+#    --ws.port 8548 \
+#    --datadir "${SCRATCH}/localnet/data/geth4" \
+#    --bootnodes "$EXECUTION_BOOTNODE" \
+#    --port 30307 \
+#    --syncmode full \
+#    --networkid 2337002 \
+#    console
+#
+#tmux split-window -v -t %3 \
+#  $NIMBUS_BN \
+#    --data-dir="${SCRATCH}/localnet/data/nimbus1" \
+#    --network="${BEACONSPEC_DIR}" \
+#    --log-file="${SCRATCH}/localnet/data/nimbus1.log" \
+#    --tcp-port=9003 \
+#    --udp-port=9003 \
+#    -b:${CONSENSUS_BOOTNODE} \
+#    --web3-url=ws://127.0.0.1:8548/
 
 tmux attach-session -t merge-localnet
