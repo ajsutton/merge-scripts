@@ -17,7 +17,7 @@ All nodes stayed in sync through the process and were successfully able to attes
 
 There were a few issues identified during the testing:
 
- * Teku & Lighthouse didn't allow subscriptions to the merge gossip topics due to an issue handling two future forks being scheduled.
- * Besu had disabled the NEW_BLOCK_HASH and NEW_BLOCK eth66 messages so was unable to follow the pre-merge chain. PR to fix this is yet to be merged at time of writing.
+ * Teku & Lighthouse didn't allow subscriptions to the merge gossip topics due to an issue handling two future forks being scheduled. The [Lighthouse PR](https://github.com/sigp/lighthouse/pull/2688) is yet to merge.
+ * Besu had disabled the NEW_BLOCK_HASH and NEW_BLOCK eth66 messages so was unable to follow the pre-merge chain. [PR to fix this](https://github.com/hyperledger/besu/pull/2866) is yet to be merged.
  * Unresolved so far, there appears to be an issue with execution payload creation by Besu (I think) when a transaction is included.
-   The resulting block was rejected by all nodes and the transaction included in a later block successfully. 
+   The resulting block was rejected by all nodes and the transaction included in a later block successfully without creating any chain splits/forks. 
