@@ -109,8 +109,6 @@ cat <<EOF > "${SCRATCH}/localnet/startBesu2.sh"
     --data-path "${SCRATCH}/localnet/data/besu2" \\
     --p2p-port 30304 \\
     --rpc-http-port=8546 \\
-    --host-allowlist "*" \\
-    --rpc-http-cors-origins "*" \\
     --bootnodes "${EXECUTION_BOOTNODE}" \\
     | tee "${SCRATCH}/localnet/data/besu2/besu.log"
 EOF
