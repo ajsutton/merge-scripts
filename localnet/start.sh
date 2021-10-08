@@ -52,23 +52,25 @@ tmux kill-session -t merge-localnet || true
 echo "### Node 1 - Geth + Teku"
 $GETH --datadir "${SCRATCH}/localnet/data/geth1" init execution/genesis.json
 $GETH --datadir "${SCRATCH}/localnet/data/geth1" account import --password "execution/geth/passfile.txt" execution/signer.key
-cat <<EOF > "${SCRATCH}/localnet/startBesu1.sh"
-  $BESU \
-      --config-file execution/besu/config.toml \
-      --data-path \"${SCRATCH}/localnet/data/besu1\" \
-      --p2p-port 30308 \
-      --rpc-http-port=8545 \
-      --node-private-key-file=execution/signer.key \
-      | tee \"${SCRATCH}/localnet/data/besu1/besu.log\"
-EOF
-chmod a+x "${SCRATCH}/localnet/startBesu1.sh"
+#cat <<EOF > "${SCRATCH}/localnet/startBesu1.sh"
+#  $BESU \
+#      --config-file execution/besu/config.toml \
+#      --data-path \"${SCRATCH}/localnet/data/besu1\" \
+#      --p2p-port 30308 \
+#      --rpc-http-port=8545 \\
+#      --node-private-key-file=execution/signer.key \
+#      | tee \"${SCRATCH}/localnet/data/besu1/besu.log\"
+#EOF
+#chmod a+x "${SCRATCH}/localnet/startBesu1.sh"
 
 tmux new-session -d -s merge-localnet \
   $GETH \
     --catalyst \
     --http \
-    --http.api "engine,eth" \
     --http.port 8545 \
+    --http.api "engine,eth,net,admin,web3" \
+    --http.corsdomain="*" \
+    --http.vhosts="*" \
     --allow-insecure-unlock \
     --unlock "0xa94f5374fce5edbc8e2a8697c15331677e6ebf0b" \
     --password "execution/geth/passfile.txt" \
@@ -107,6 +109,8 @@ cat <<EOF > "${SCRATCH}/localnet/startBesu2.sh"
     --data-path "${SCRATCH}/localnet/data/besu2" \\
     --p2p-port 30304 \\
     --rpc-http-port=8546 \\
+    --host-allowlist "*" \\
+    --rpc-http-cors-origins "*" \\
     --bootnodes "${EXECUTION_BOOTNODE}" \\
     | tee "${SCRATCH}/localnet/data/besu2/besu.log"
 EOF
@@ -138,7 +142,9 @@ tmux split-window -v -f -t %2 \
   $GETH \
     --catalyst \
     --http \
-    --http.api "engine,eth" \
+    --http.api "engine,eth,net,admin,web3" \
+    --http.corsdomain="*" \
+    --http.vhosts="*" \
     --http.port 8547 \
     --datadir "${SCRATCH}/localnet/data/geth3" \
     --bootnodes "$EXECUTION_BOOTNODE" \
@@ -147,22 +153,30 @@ tmux split-window -v -f -t %2 \
     --networkid 2337002 \
     console
 
-tmux split-window -h -t %4 \
-  $LIGHTHOUSE \
-    --spec mainnet \
-    --testnet-dir "${BEACONSPEC_DIR}" \
-    beacon_node \
-    --purge-db \
-    --datadir "${SCRATCH}/localnet/data/lighthouse1" \
-    --boot-nodes "${CONSENSUS_BOOTNODE}" \
-    --port 9002 \
-    --dummy-eth1 \
-    --http \
-    --http-port 5053 \
-    --http-allow-sync-stalled \
-    --merge \
-    --execution-endpoints http://127.0.0.1:8547 \
-    --terminal-total-difficulty-override 12C
+cat <<EOF > "${SCRATCH}/localnet/startLighthouse1.sh"
+  $LIGHTHOUSE \\
+    --spec mainnet \\
+    --testnet-dir "${BEACONSPEC_DIR}" \\
+    beacon_node \\
+    --purge-db \\
+    --datadir "${SCRATCH}/localnet/data/lighthouse1" \\
+    --boot-nodes "${CONSENSUS_BOOTNODE}" \\
+    --port 9002 \\
+    --enr-address 127.0.0.1 \\
+    --enr-tcp-port 9002 \\
+    --enr-udp-port 9002 \\
+    --dummy-eth1 \\
+    --http \\
+    --http-port 5053 \\
+    --http-allow-sync-stalled \\
+    --merge \\
+    --execution-endpoints http://127.0.0.1:8547 \\
+    --terminal-total-difficulty-override 12C \\
+    | tee "${SCRATCH}/localnet/lighthouse1.log"
+EOF
+chmod a+x "${SCRATCH}/localnet/startLighthouse1.sh"
+tmux split-window -h -t %4 "${SCRATCH}/localnet/startLighthouse1.sh"
+
 
 # Lighthouse Validator
 mkdir -p "${SCRATCH}/localnet/data/lighthouse1-vc"
@@ -194,22 +208,29 @@ chmod a+x "${SCRATCH}/localnet/startBesu3.sh"
 
 tmux split-window -v -f -l 75% -t %0 "${SCRATCH}/localnet/startBesu3.sh"
 
-tmux split-window -h -t %7 \
-  $LIGHTHOUSE \
-    --spec mainnet \
-    --testnet-dir "${BEACONSPEC_DIR}" \
-    beacon_node \
-    --purge-db \
-    --datadir "${SCRATCH}/localnet/data/lighthouse2" \
-    --boot-nodes "${CONSENSUS_BOOTNODE}" \
-    --port 9003 \
-    --dummy-eth1 \
-    --http \
-    --http-port 5054 \
-    --http-allow-sync-stalled \
-    --merge \
-    --execution-endpoints http://127.0.0.1:8548 \
-    --terminal-total-difficulty-override 12C
+cat <<EOF > "${SCRATCH}/localnet/startLighthouse2.sh"
+  $LIGHTHOUSE \\
+    --spec mainnet \\
+    --testnet-dir "${BEACONSPEC_DIR}" \\
+    beacon_node \\
+    --purge-db \\
+    --datadir "${SCRATCH}/localnet/data/lighthouse2" \\
+    --boot-nodes "${CONSENSUS_BOOTNODE}" \\
+    --port 9003 \\
+    --enr-address 127.0.0.1 \\
+    --enr-tcp-port 9003 \\
+    --enr-udp-port 9003 \\
+    --dummy-eth1 \\
+    --http \\
+    --http-port 5054 \\
+    --http-allow-sync-stalled \\
+    --merge \\
+    --execution-endpoints http://127.0.0.1:8548 \\
+    --terminal-total-difficulty-override 12C \\
+  | tee "${SCRATCH}/loalnet/data/lighthouse2.log"
+EOF
+chmod a+x "${SCRATCH}/localnet/startLighthouse2.sh"
+tmux split-window -h -t %7 "${SCRATCH}/localnet/startLighthouse2.sh"
 
 # Lighthouse Validator
 mkdir -p "${SCRATCH}/localnet/data/lighthouse2-vc"
