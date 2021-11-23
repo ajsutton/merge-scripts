@@ -19,7 +19,6 @@ mkdir -p "${SCRATCH}/localnet/data/besu1"
 mkdir -p "${SCRATCH}/localnet/data/besu2"
 
 GENESIS_STATE="${SCRATCH}/localnet/genesis.ssz"
-TERMINAL_TOTAL_DIFFICULTY=300
 export JAVA_OPTS="-Xmx512m"
 
 CONSENSUS_BOOTNODE="enr:-KG4QNndG4nlf0_K6G2NOQ_ifmraOlseY7ZbsDQ0NWk2pmxjE-bi6SQT4UGXIbRXLq3vbvxWuNkxxEgml6h18nCKyvoDhGV0aDKQNJ7Z9jEAAAEBAAAAAAAAAIJpZIJ2NIJpcIR_AAABiXNlY3AyNTZrMaEDLtDQNOGsr_iYx-sZkTPsZha9b9PaHe5pHub_YcbGuZyDdGNwgiMog3VkcIIjKA"
@@ -87,12 +86,12 @@ tmux new-session -d -s merge-localnet \
 tmux split-window -h -t merge-localnet \
   $TEKU \
     --eth1-endpoints http://127.0.0.1:8545 \
-    --ee-fee-recipient-address=0xfe3b557e8fb62b89f4916b721be55ceb828dbd73 \
+    --Xee-endpoint http://127.0.0.1:8545 \
+    --Xvalidators-fee-recipient-address=0xfe3b557e8fb62b89f4916b721be55ceb828dbd73 \
     --validator-keys "consensus/validator-keys/batch1/teku-keys:consensus/validator-keys/batch1/teku-secrets" \
     --validators-keystore-locking-enabled=false \
     --network=consensus/config.yaml \
     --initial-state "${GENESIS_STATE}" \
-    --Xnetwork-merge-total-terminal-difficulty=${TERMINAL_TOTAL_DIFFICULTY} \
     --p2p-private-key-file=consensus/teku/teku.key \
     --p2p-advertised-ip=127.0.0.1 \
     --p2p-port 9000 \
@@ -119,12 +118,12 @@ tmux split-window -v -f -t %0 "${SCRATCH}/localnet/startBesu2.sh"
 tmux split-window -h -t %2 \
   $TEKU \
     --eth1-endpoints http://127.0.0.1:8546 \
-    --ee-fee-recipient-address=0xfe3b557e8fb62b89f4916b721be55ceb828dbd73 \
+    --Xee-endpoint http://127.0.0.1:8546 \
+    --Xvalidators-fee-recipient-address=0xfe3b557e8fb62b89f4916b721be55ceb828dbd73 \
     --validator-keys "consensus/validator-keys/batch2/teku-keys:consensus/validator-keys/batch2/teku-secrets" \
     --validators-keystore-locking-enabled=false \
     --network=consensus/config.yaml \
     --initial-state "${GENESIS_STATE}" \
-    --Xnetwork-merge-total-terminal-difficulty=${TERMINAL_TOTAL_DIFFICULTY} \
     --p2p-advertised-ip=127.0.0.1 \
     --p2p-port 9001 \
     --Xlog-include-p2p-warnings-enabled \
@@ -169,8 +168,7 @@ cat <<EOF > "${SCRATCH}/localnet/startLighthouse1.sh"
     --http-allow-sync-stalled \\
     --merge \\
     --execution-endpoints http://127.0.0.1:8547 \\
-    --terminal-total-difficulty-override 12C \\
-    | tee "${SCRATCH}/localnet/lighthouse1.log"
+    2>&1 | tee "${SCRATCH}/localnet/lighthouse1.log"
 EOF
 chmod a+x "${SCRATCH}/localnet/startLighthouse1.sh"
 tmux split-window -h -t %4 "${SCRATCH}/localnet/startLighthouse1.sh"
@@ -224,8 +222,7 @@ cat <<EOF > "${SCRATCH}/localnet/startLighthouse2.sh"
     --http-allow-sync-stalled \\
     --merge \\
     --execution-endpoints http://127.0.0.1:8548 \\
-    --terminal-total-difficulty-override 12C \\
-  | tee "${SCRATCH}/loalnet/data/lighthouse2.log"
+  2>&1 | tee "${SCRATCH}/localnet/data/lighthouse2.log"
 EOF
 chmod a+x "${SCRATCH}/localnet/startLighthouse2.sh"
 tmux split-window -h -t %7 "${SCRATCH}/localnet/startLighthouse2.sh"

@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-if [ "${SCRIPTDIR}" == "" ]
+if [ "${SCRIPTDIR:-}" == "" ]
 then
     export BASEDIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 else
@@ -32,7 +32,7 @@ then
     then
         echo "#### Building Teku"
         pushd "${BASEDIR}"
-        git clone -b merge-interop --recursive https://github.com/ConsenSys/teku
+        git clone -b master --recursive https://github.com/ConsenSys/teku
         cd teku
         ./gradlew --parallel installDist
         popd
@@ -46,7 +46,7 @@ then
     then
         echo "#### Building Lighthouse"
         pushd "${BASEDIR}"
-        git clone -b merge-f2f https://github.com/sigp/lighthouse.git
+        git clone -b kintsugi https://github.com/sigp/lighthouse.git
         cd lighthouse
         make
         popd
@@ -62,7 +62,7 @@ then
     then
         echo "#### Building Geth"
         pushd "${BASEDIR}"
-        git clone -b merge-interop-spec https://github.com/MariusVanDerWijden/go-ethereum.git
+        git clone -b kintsugi-spec https://github.com/MariusVanDerWijden/go-ethereum.git
         cd go-ethereum
         make geth
         popd
