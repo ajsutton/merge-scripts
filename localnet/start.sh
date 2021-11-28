@@ -61,6 +61,7 @@ $GETH --datadir "${SCRATCH}/localnet/data/geth1" account import --password "exec
 #      | tee \"${SCRATCH}/localnet/data/besu1/besu.log\"
 #EOF
 #chmod a+x "${SCRATCH}/localnet/startBesu1.sh"
+export TEKU_OPTS="-Dlog4j.configurationFile=/Users/aj/Documents/code/teku/tmp/log4j.xml"
 
 tmux new-session -d -s merge-localnet \
   $GETH \
@@ -99,7 +100,7 @@ tmux split-window -h -t merge-localnet \
     --rest-api-enabled \
     --data-path "${SCRATCH}/localnet/data/teku1"
 
-
+unset TEKU_OPTS
 echo "### Node 2 - Besu + Teku"
 
 cat <<EOF > "${SCRATCH}/localnet/startBesu2.sh"
