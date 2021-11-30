@@ -62,12 +62,32 @@ then
     then
         echo "#### Building Geth"
         pushd "${BASEDIR}"
-        git clone -b kintsugi-spec https://github.com/MariusVanDerWijden/go-ethereum.git
+        git clone -b beacon-ontopof-4399 https://github.com/MariusVanDerWijden/go-ethereum.git
         cd go-ethereum
         make geth
         popd
     fi
     echo "Geth executable: $GETH"
+fi
+
+if [ "${NEED_NETHERMIND:-false}" == "true" ]
+then
+  echo "Check nethermind"
+  if ! which dotnet &> /dev/null
+  then
+    echo "ERROR !!!!!! dotnet is not available but is required for netheremind"
+    exit 1
+  fi
+  echo "Need nethermind"
+  if [[ ! -d $BASEDIR/nethermind ]]
+  then
+    echo "#### Building Nethermind"
+    git clone -b themerge_kintsugi --recursive https://github.com/NethermindEth/nethermind.git
+    cd nethermind/src/Nethermind
+    dotnet build Nethermind.sln -c Release
+     # Apparently sometimes you need to do it twice, we'll just go with it...
+    dotnet build Nethermind.sln -c Release
+  fi
 fi
 
 if [ "${NEED_VALTOOLS:-false}" == "true" ]
