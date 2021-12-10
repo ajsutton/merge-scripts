@@ -10,4 +10,3 @@ rpc-http-port=8545
 p2p-port=30308
 p2p-enabled=false
 node-private-key-file="besu.key"
-logging="DEBUG"

@@ -14,8 +14,8 @@
 		"berlinBlock":0,
 		"londonBlock":0,
 		"clique": {
-			"epoch": 30000,
-                        "blockPeriodSeconds": 2
+                        "blockPeriodSeconds": 5,
+			"epoch": 30000
 		},
 		"terminalTotalDifficulty": 100
 	},
