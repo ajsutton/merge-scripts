@@ -15,7 +15,7 @@ $TEKU genesis mock --output-file "${GENESIS}" --network config.yaml --validator-
 $TEKU \
   --eth1-endpoints http://127.0.0.1:8545 \
   --Xee-endpoint http://127.0.0.1:8545 \
-  --Xvalidators-fee-recipient-address=0xa94f5374fce5edbc8e2a8697c15331677e6ebf0b \
+  --Xvalidators-suggested-fee-recipient-address=0xa94f5374fce5edbc8e2a8697c15331677e6ebf0b \
   --Xinterop-enabled=true \
   --Xinterop-number-of-validators=256 \
   --Xinterop-owned-validator-start-index=0 \
